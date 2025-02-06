@@ -222,9 +222,11 @@
 
 import React from "react";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
-import { Plus, Minus, Stethoscope, User, Clock, Pill as Pills } from "lucide-react";
+import { Plus, Minus, Stethoscope, User, Clock, Pill as Pills, LogOut } from "lucide-react";
 import { db } from "../../firebaseConfig"; // Import Firebase
 import { addDoc, collection } from "firebase/firestore"; // Import Firestore functions
+import { getAuth, signOut } from "firebase/auth"; // Import Firebase Auth
+import { useNavigate } from "react-router-dom"; // Import React Router for navigation
 
 function DoctorDashboard() {
   const { control, handleSubmit, register } = useForm({
@@ -245,6 +247,9 @@ function DoctorDashboard() {
     name: "medicines",
   });
 
+  const auth = getAuth(); // Initialize Firebase Auth
+  const navigate = useNavigate(); // Initialize React Router navigation
+
   const onSubmit = async (data) => {
     try {
       // Add the form data to the "prescriptions" collection in Firestore
@@ -259,9 +264,30 @@ function DoctorDashboard() {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await signOut(auth); // Sign out the user
+      navigate("/"); // Navigate to the home page
+    } catch (error) {
+      console.error("Error signing out: ", error);
+      alert("Failed to sign out. Please try again.");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
+        {/* Logout Button */}
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={handleLogout}
+            className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Logout</span>
+          </button>
+        </div>
+
         <div className="text-center mb-8">
           <Stethoscope className="h-12 w-12 text-blue-600 mx-auto mb-4" />
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
